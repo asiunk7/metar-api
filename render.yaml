@@ -2,9 +2,6 @@ services:
   - type: web
     name: metar-api
     env: python
-    buildCommand: ""
-    startCommand: "python main.py"
     plan: free
-    envVars:
-      - key: PORT
-        value: 10000
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn main:app
