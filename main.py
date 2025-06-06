@@ -11,14 +11,15 @@ def get_metar():
     if not icao:
         return jsonify({"error": "Missing ICAO code"}), 400
 
+    # GUNAKAN URL XML
     url = f"https://aviationweather.gov/adds/dataserver_current/httpparam?dataSource=metars&requestType=retrieve&format=xml&hoursBeforeNow=1&stationString={icao}"
 
     try:
         response = requests.get(url)
         tree = ET.fromstring(response.content)
-        metar_el = tree.find(".//METAR/raw_text")
+        metar_el = tree.find(".//raw_text")
 
-        if metar_el is not None:
+        if metar_el is not None and metar_el.text:
             return jsonify({"icao": icao, "metar": metar_el.text})
         else:
             return jsonify({"icao": icao, "metar": None, "note": "No METAR data"}), 204
