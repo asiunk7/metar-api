@@ -14,10 +14,16 @@ def get_metar():
     try:
         response = requests.get(url)
         data = response.json()
+
         if isinstance(data, list) and len(data) > 0:
-            return jsonify({"metar": data[0].get("raw_text", "No raw_text available")})
+            item = data[0]
+            if "raw_text" in item:
+                return jsonify({"icao": icao, "metar": item["raw_text"]})
+            else:
+                return jsonify({"icao": icao, "metar": None, "note": "raw_text not found"}), 204
         else:
-            return jsonify({"error": "No METAR found"}), 404
+            return jsonify({"error": "No METAR data found"}), 404
+
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
