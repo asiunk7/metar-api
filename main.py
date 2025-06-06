@@ -10,23 +10,14 @@ def get_metar():
     if not icao:
         return jsonify({"error": "Missing ICAO code"}), 400
 
-    # Gunakan endpoint JSON
-    url = f"https://aviationweather.gov/api/data/metar?format=json&ids={icao}"
-
+    url = f"https://aviationweather.gov/cgi-bin/data/metar.php?ids={icao}&format=json"
     try:
         response = requests.get(url)
         data = response.json()
-
-        if isinstance(data, list) and len(data) > 0:
-            metar_data = data[0]
-            raw_text = metar_data.get("raw_text")
-            if raw_text:
-                return jsonify({"icao": icao, "metar": raw_text})
-            else:
-                return jsonify({"icao": icao, "metar": None, "note": "raw_text not found"}), 204
+        if isinstance(data, list) and len(data) > 0 and "raw_text" in data[0]:
+            return jsonify({"metar": data[0]["raw_text"]})
         else:
-            return jsonify({"error": "No METAR data found"}), 404
-
+            return jsonify({"metar": None}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
