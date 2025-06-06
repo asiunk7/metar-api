@@ -5,8 +5,7 @@ app = Flask(__name__)
 
 @app.route("/metar")
 def get_all_indonesia_metar():
-    # Semua prefix ICAO Indonesia (WI, WA, WB, WR)
-    prefixes = ["WI", "WA", "WB", "WR"]
+    prefixes = ["WI", "WA", "WB", "WR"]  # ICAO prefix Indonesia
     station_url = "https://aviationweather.gov/docs/metar/stations.txt"
     station_data = requests.get(station_url).text
     icao_codes = []
