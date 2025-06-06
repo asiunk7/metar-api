@@ -10,7 +10,8 @@ def get_metar():
     if not icao:
         return jsonify({"error": "Missing ICAO code"}), 400
 
-    url = f"https://aviationweather.gov/cgi-bin/data/metar.php?ids={icao}&format=json"
+    url = f"https://aviationweather.gov/api/data/metar?ids={icao}&format=raw"
+
 
     try:
         response = requests.get(url)
