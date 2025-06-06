@@ -11,16 +11,18 @@ def get_metar():
         return jsonify({"error": "Missing ICAO code"}), 400
 
     url = f"https://aviationweather.gov/cgi-bin/data/metar.php?ids={icao}&format=json"
+
     try:
         response = requests.get(url)
         data = response.json()
-        if isinstance(data, list) and len(data) > 0:
-            return jsonify({"results": [{"metar": data[0]["raw_text"]}]})
-        else:
-            return jsonify({"results": [{"metar": "No raw_text available"}]})
-    except Exception as e:
-        return jsonify({"results": [{"metar": str(e)}]}), 500
 
+        if isinstance(data, list) and len(data) > 0:
+            metar_text = data[0].get("raw_text", "No raw_text available")
+            return jsonify({"results": [{"metar": metar_text}]})
+        else:
+            return jsonify({"results": [{"metar": None}]})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
