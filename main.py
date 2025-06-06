@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 import requests
 import os
+import xml.etree.ElementTree as ET
 
 app = Flask(__name__)
 
@@ -10,19 +11,17 @@ def get_metar():
     if not icao:
         return jsonify({"error": "Missing ICAO code"}), 400
 
-    url = f"https://aviationweather.gov/cgi-bin/data/metar.php?ids={icao}&format=json"
+    url = f"https://aviationweather.gov/adds/dataserver_current/httpparam?dataSource=metars&requestType=retrieve&format=xml&hoursBeforeNow=1&stationString={icao}"
+
     try:
         response = requests.get(url)
-        data = response.json()
+        tree = ET.fromstring(response.content)
+        metar_el = tree.find(".//METAR/raw_text")
 
-        if isinstance(data, list) and len(data) > 0:
-            item = data[0]
-            if "raw_text" in item:
-                return jsonify({"icao": icao, "metar": item["raw_text"]})
-            else:
-                return jsonify({"icao": icao, "metar": None, "note": "raw_text not found"}), 204
+        if metar_el is not None:
+            return jsonify({"icao": icao, "metar": metar_el.text})
         else:
-            return jsonify({"error": "No METAR data found"}), 404
+            return jsonify({"icao": icao, "metar": None, "note": "No METAR data"}), 204
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
