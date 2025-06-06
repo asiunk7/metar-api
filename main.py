@@ -15,12 +15,12 @@ def get_metar():
         response = requests.get(url)
         data = response.json()
         if isinstance(data, list) and len(data) > 0:
-            return jsonify({"metar": data[0]["raw_text"]})
+            return jsonify({"metar": data[0].get("raw_text", "No raw_text available")})
         else:
-            return jsonify({"metar": "No METAR found"}), 404
+            return jsonify({"error": "No METAR found"}), 404
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))  # <= fix disini bro
+    port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
