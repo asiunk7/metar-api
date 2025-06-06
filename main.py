@@ -10,14 +10,17 @@ def get_metar():
     if not icao:
         return jsonify({"error": "Missing ICAO code"}), 400
 
-    url = f"https://aviationweather.gov/cgi-bin/data/metar.php?ids={icao}&format=json"
+    url = f"https://tgftp.nws.noaa.gov/data/observations/metar/stations/{icao.upper()}.TXT"
     try:
         response = requests.get(url)
-        data = response.json()
-        if isinstance(data, list) and len(data) > 0 and "raw_text" in data[0]:
-            return jsonify({"metar": data[0]["raw_text"]})
+        if response.status_code == 200:
+            lines = response.text.strip().split("\n")
+            if len(lines) >= 2:
+                return jsonify({"metar": lines[1]})
+            else:
+                return jsonify({"metar": None})
         else:
-            return jsonify({"metar": None}), 200
+            return jsonify({"metar": None}), 404
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
