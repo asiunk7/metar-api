@@ -5,9 +5,11 @@ app = Flask(__name__)
 
 @app.route("/metar")
 def get_all_indonesia_metar():
-    prefixes = ["WI", "WA", "WB", "WR"]  # ICAO prefix Indonesia
+    prefixes = ["WI", "WA", "WB", "WR"]
     station_url = "https://aviationweather.gov/docs/metar/stations.txt"
-    station_data = requests.get(station_url).text
+    headers = {"User-Agent": "Mozilla/5.0"}
+
+    station_data = requests.get(station_url, headers=headers).text
     icao_codes = []
 
     for line in station_data.splitlines():
@@ -17,7 +19,7 @@ def get_all_indonesia_metar():
 
     icao_str = ",".join(icao_codes)
     metar_url = f"https://aviationweather.gov/cgi-bin/data/metar.php?ids={icao_str}&format=raw&hours=1"
-    raw_text = requests.get(metar_url).text.strip()
+    raw_text = requests.get(metar_url, headers=headers).text.strip()
 
     result = []
     for line in raw_text.splitlines():
