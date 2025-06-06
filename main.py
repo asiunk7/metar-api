@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 import requests
+import os
 
 app = Flask(__name__)
 
@@ -19,3 +20,7 @@ def get_metar():
             return jsonify({"metar": "No METAR found"}), 404
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 5000))  # <= fix disini bro
+    app.run(host="0.0.0.0", port=port)
